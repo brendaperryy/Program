@@ -1,0 +1,14 @@
+import keyboard_api  # Replace with the actual library for your keyboard
+
+def change_keyboard_color(rgb_color):
+    # Connect to the keyboard's API
+    keyboard = keyboard_api.connect_to_keyboard()
+
+    if keyboard is not None:
+        # Set the RGB color of the keyboard
+        keyboard.set_color(rgb_color)
+        print(f"Keyboard color set to {rgb_color}")
+
+if __name__ == "__main__":
+    desired_color = (255, 0, 0)  # Red color
+    change_keyboard_color(desired_color)
