@@ -1,0 +1,25 @@
+class MouseController:
+    def __init__(self):
+        self.mouse = self.connect_to_mouse()
+
+    def connect_to_mouse(self):
+        # Replace with the actual method to connect to the mouse API
+        # (provided by the manufacturer)
+        return mouse_api.connect_to_mouse()
+
+    def change_mouse_color(self, rgb_color):
+        if self.mouse is not None:
+            try:
+                # Replace with the actual method to set the mouse color
+                self.mouse.set_color(rgb_color)
+                print(f"Mouse color set to {rgb_color}")
+            except Exception as e:
+                print(f"Error setting mouse color: {e}")
+        else:
+            print("Mouse not connected.")
+
+if __name__ == "__main__":
+    mouse_controller = MouseController()
+    desired_color = (0, 255, 0)  # Green color
+
+    mouse_controller.change_mouse_color(desired_color)
