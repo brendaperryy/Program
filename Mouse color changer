@@ -5,14 +5,29 @@ class MouseController:
     def get_connected_mice(self):
         # Replace with the actual method to get a list of connected mice
         # (provided by the manufacturer)
-        return mouse_api.get_connected_mice()
+        try:
+            connected_mice = mouse_api.get_connected_mice()
+            return connected_mice
+        except Exception as e:
+            print(f"Error getting connected mice: {e}")
+            return {}
 
     def connect_to_mouse(self, mouse_id):
         # Replace with the actual method to connect to a specific mouse
         # (provided by the manufacturer)
-        return mouse_api.connect_to_mouse(mouse_id)
+        try:
+            mouse = mouse_api.connect_to_mouse(mouse_id)
+            if mouse:
+                print(f"Connected to Mouse {mouse_id}")
+                return mouse
+            else:
+                print(f"Failed to connect to Mouse {mouse_id}")
+                return None
+        except Exception as e:
+            print(f"Error connecting to Mouse {mouse_id}: {e}")
+            return None
 
-    def change_mouse_color(self, mouse_id, rgb_color):
+    def change_mouse_color(self, mouse_id, rgb_color=(0, 0, 0)):
         mouse = self.connected_mice.get(mouse_id)
 
         if mouse is not None:
@@ -51,5 +66,7 @@ if __name__ == "__main__":
     mouse_id = 1  # Replace with the actual mouse ID
     desired_color = (0, 255, 0)  # Green color
 
-    mouse_controller.change_mouse_color(mouse_id, desired_color)
-    mouse_controller.get_mouse_color(mouse_id)
+    mouse = mouse_controller.connect_to_mouse(mouse_id)
+    if mouse:
+        mouse_controller.change_mouse_color(mouse_id, desired_color)
+        mouse_controller.get_mouse_color(mouse_id)
