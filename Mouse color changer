@@ -1,72 +1,78 @@
+import numpy as np
+import soundfile as sf
+import sounddevice as sd
+import threading
+
 class MouseController:
     def __init__(self):
         self.connected_mice = self.get_connected_mice()
+        self.music_thread = None
+        self.stop_event = threading.Event()
 
     def get_connected_mice(self):
         # Replace with the actual method to get a list of connected mice
         # (provided by the manufacturer)
-        try:
-            connected_mice = mouse_api.get_connected_mice()
-            return connected_mice
-        except Exception as e:
-            print(f"Error getting connected mice: {e}")
-            return {}
+        return mouse_api.get_connected_mice()
 
     def connect_to_mouse(self, mouse_id):
         # Replace with the actual method to connect to a specific mouse
         # (provided by the manufacturer)
-        try:
-            mouse = mouse_api.connect_to_mouse(mouse_id)
-            if mouse:
-                print(f"Connected to Mouse {mouse_id}")
-                return mouse
-            else:
-                print(f"Failed to connect to Mouse {mouse_id}")
-                return None
-        except Exception as e:
-            print(f"Error connecting to Mouse {mouse_id}: {e}")
-            return None
+        pass
 
     def change_mouse_color(self, mouse_id, rgb_color=(0, 0, 0)):
-        mouse = self.connected_mice.get(mouse_id)
-
-        if mouse is not None:
-            try:
-                # Replace with the actual method to set the mouse color
-                mouse.set_color(rgb_color)
-                print(f"Mouse {mouse_id} color set to {rgb_color}")
-            except Exception as e:
-                print(f"Error setting mouse {mouse_id} color: {e}")
-        else:
-            print(f"Mouse {mouse_id} not connected.")
+        # Replace with the actual method to set the mouse color
+        pass
 
     def get_mouse_color(self, mouse_id):
-        mouse = self.connected_mice.get(mouse_id)
-
-        if mouse is not None:
-            try:
-                # Replace with the actual method to get the mouse color
-                current_color = mouse.get_color()
-                print(f"Mouse {mouse_id} current color: {current_color}")
-                return current_color
-            except Exception as e:
-                print(f"Error getting mouse {mouse_id} color: {e}")
-        else:
-            print(f"Mouse {mouse_id} not connected.")
+        # Replace with the actual method to get the mouse color
+        pass
 
     def list_connected_mice(self):
         print("Connected Mice:")
         for mouse_id in self.connected_mice.keys():
             print(f"- Mouse {mouse_id}")
 
+    def analyze_music(self, filename, duration=10):
+        # Analyze music and change mouse color dynamically
+        data, _ = sf.read(filename, dtype='float32')
+        data = data[:duration * sd.default.samplerate, 0]  # Analyze only the first channel and specified duration
+
+        while not self.stop_event.is_set():
+            # Use FFT to analyze frequency content
+            fft_data = np.abs(np.fft.fft(data))
+            dominant_freq = np.argmax(fft_data)
+
+            # Map dominant frequency to RGB color values
+            r = int(dominant_freq % 256)
+            g = int((dominant_freq // 256) % 256)
+            b = int((dominant_freq // 256 // 256) % 256)
+
+            # Change mouse color
+            self.change_mouse_color(1, (r, g, b))
+
+            # Adjust sleep duration based on real-time requirements
+            time.sleep(0.1)
+
+    def start_music_color_change(self, filename, duration=10):
+        self.stop_event.clear()
+        self.music_thread = threading.Thread(target=self.analyze_music, args=(filename, duration))
+        self.music_thread.start()
+
+    def stop_music_color_change(self):
+        self.stop_event.set()
+        if self.music_thread:
+            self.music_thread.join()
+
 if __name__ == "__main__":
     mouse_controller = MouseController()
     mouse_controller.list_connected_mice()
 
-    mouse_id = 1  # Replace with the actual mouse ID
-    desired_color = (0, 255, 0)  # Green color
+    # Start changing mouse color dynamically with music
+    filename = "sample_music.wav"  # Replace with your music file path
+    mouse_controller.start_music_color_change(filename)
 
-    mouse = mouse_controller.connect_to_mouse(mouse_id)
-    if mouse:
-        mouse_controller.change_mouse_color(mouse_id, desired_color)
-        mouse_controller.get_mouse_color(mouse_id)
+    # Wait for some time or perform other tasks
+    time.sleep(20)
+
+    # Stop changing mouse color dynamically with music
+    mouse_controller.stop_music_color_change()
